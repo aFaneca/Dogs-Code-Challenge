@@ -17,16 +17,23 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object  AppModule {
 
-    /* HTTP */
+    //region HTTP
     @Provides
     @Singleton
     fun provideHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor()
+        // Enable HTTP logging for debug only
         if (BuildConfig.DEBUG) {
             logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         } else logging.setLevel(HttpLoggingInterceptor.Level.NONE)
         return OkHttpClient.Builder()
             .addInterceptor(logging)
+            .addInterceptor { chain ->
+                // Inject x-api-key header into every outgoing request
+                chain.proceed(chain.request().newBuilder().also {
+                    it.addHeader("x-api-key", BuildConfig.DOG_API_KEY)
+                }.build())
+            }
             .build()
     }
 
@@ -38,4 +45,6 @@ object  AppModule {
         .client(httpClient)
         .build()
         .create(DogApi::class.java)
+
+    //endregion
 }
