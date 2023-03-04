@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.afaneca.dogscodechallenge.common.Resource
 import com.afaneca.dogscodechallenge.domain.usecase.ExploreDogImagesUseCase
-import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
+import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +37,7 @@ class ListViewModel @Inject constructor(
             ).onEach {
                 when (it) {
                     is Resource.Success -> {
-                        val pageData = it.data?.map { item -> DogImageUiModel.mapFromDomain(item) }
+                        val pageData = it.data?.map { item -> DogItemUiModel.mapFromDomain(item) }
                         if (!pageData.isNullOrEmpty()) {
                             _state.value = _state.value.copy(
                                 listItems = _state.value.listItems?.plus(pageData) ?: pageData,

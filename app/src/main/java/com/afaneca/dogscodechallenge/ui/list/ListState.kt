@@ -1,7 +1,7 @@
 package com.afaneca.dogscodechallenge.ui.list
 
-import com.afaneca.dogscodechallenge.domain.model.DogImagesOrder
-import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
+import com.afaneca.dogscodechallenge.domain.model.DogItemsOrder
+import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 
 sealed interface ListLayout {
     object List : ListLayout
@@ -23,12 +23,12 @@ data class ListActionBarState(
 data class ListState(
     val isLoading: Boolean = false,
     val isLoadingFromPagination: Boolean = false,
-    val listItems: List<DogImageUiModel>? = null,
+    val listItems: List<DogItemUiModel>? = null,
     val page: Int = 0,
     val error: String? = null,
 )
 
 fun ListOrder.mapToDomain() = when (this) {
-    is ListOrder.Descending -> DogImagesOrder.Descending
-    else -> DogImagesOrder.Ascending
+    is ListOrder.Descending -> DogItemsOrder.Descending
+    else -> DogItemsOrder.Ascending
 }

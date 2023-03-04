@@ -16,14 +16,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.R
 import com.afaneca.dogscodechallenge.databinding.FragmentSearchBinding
+import com.afaneca.dogscodechallenge.ui.MainActivity
 import com.afaneca.dogscodechallenge.ui.list.DogListAdapter
 import com.afaneca.dogscodechallenge.ui.list.ListViewType
-import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
+import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import com.afaneca.dogscodechallenge.ui.utils.hideSoftKeyboard
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 
+@AndroidEntryPoint
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
@@ -35,6 +38,7 @@ class SearchFragment : Fragment() {
                 R.menu.search_toolbar_menu, menu
             )
             val searchView = menu.findItem(R.id.action_search).actionView as SearchView
+            // Auto-fill with saved search query, if it exists
             searchView.setOnQueryTextListener(object : OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     viewModel.onQuerySubmitted(query)
@@ -70,6 +74,13 @@ class SearchFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().addMenuProvider(searchMenuProvider)
+        if (!viewModel.state.value.searchQuery.isNullOrEmpty()) {
+            (requireActivity() as MainActivity).supportActionBar?.title =
+                getString(
+                    R.string.search_actionbar_title_with_query,
+                    viewModel.state.value.searchQuery
+                )
+        }
     }
 
     override fun onPause() {
@@ -95,7 +106,7 @@ class SearchFragment : Fragment() {
             }.launchIn(lifecycleScope)
     }
 
-    private fun setupRecyclerView(list: List<DogImageUiModel>) {
+    private fun setupRecyclerView(list: List<DogItemUiModel>) {
         if (binding.rvList.adapter == null) {
             // setup
             binding.rvList.apply {

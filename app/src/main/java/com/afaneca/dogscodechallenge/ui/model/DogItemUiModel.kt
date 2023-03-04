@@ -1,8 +1,9 @@
 package com.afaneca.dogscodechallenge.ui.model
 
-import com.afaneca.dogscodechallenge.domain.model.DogImage
+import com.afaneca.dogscodechallenge.domain.model.Breed
+import com.afaneca.dogscodechallenge.domain.model.DogItem
 
-data class DogImageUiModel(
+data class DogItemUiModel(
     val id: String,
     val breedName: String,
     val breedGroup: String?,
@@ -11,7 +12,7 @@ data class DogImageUiModel(
     val imgUrl: String?,
 ) {
     companion object {
-        fun mapFromDomain(domainModel: DogImage) = DogImageUiModel(
+        fun mapFromDomain(domainModel: DogItem) = DogItemUiModel(
             id = domainModel.id,
             // TODO - make null safe
             breedName = domainModel.breeds.first().name,
@@ -19,6 +20,15 @@ data class DogImageUiModel(
             origin = domainModel.breeds.first().origin,
             temperament = domainModel.breeds.first().temperament,
             imgUrl = domainModel.url
+        )
+
+        fun mapFromDomain(domainModel: Breed) = DogItemUiModel(
+            id = domainModel.id,
+            breedName = domainModel.name,
+            breedGroup = domainModel.breedGroup,
+            origin = domainModel.origin,
+            temperament = domainModel.temperament,
+            imgUrl = null
         )
     }
 }

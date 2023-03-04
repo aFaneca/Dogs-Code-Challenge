@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.R
 import com.afaneca.dogscodechallenge.databinding.FragmentListBinding
-import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
+import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -149,7 +149,7 @@ class ListFragment : Fragment() {
         requireActivity().invalidateOptionsMenu()
     }
 
-    private fun setupRecyclerView(list: List<DogImageUiModel>) {
+    private fun setupRecyclerView(list: List<DogItemUiModel>) {
         if (binding.rvList.adapter == null) {
             // setup
             binding.rvList.apply {

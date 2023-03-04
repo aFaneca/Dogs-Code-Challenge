@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.databinding.AdapterDogListItemBinding
 import com.afaneca.dogscodechallenge.databinding.AdapterDogSearchItemBinding
-import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
+import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import com.afaneca.dogscodechallenge.ui.utils.ImageLoader
 
 sealed class ListViewType(val id: Int) {
@@ -19,18 +19,18 @@ sealed class ListViewType(val id: Int) {
 
 class DogListAdapter(
     private val viewType: ListViewType,
-    private val onItemClick: (item: DogImageUiModel) -> Unit
-) : ListAdapter<DogImageUiModel, DogListAdapter.ViewHolder>(
+    private val onItemClick: (item: DogItemUiModel) -> Unit
+) : ListAdapter<DogItemUiModel, DogListAdapter.ViewHolder>(
     AsyncDifferConfig.Builder(
         DiffCallback()
     ).build()
 ) {
 
-    private class DiffCallback : DiffUtil.ItemCallback<DogImageUiModel>() {
-        override fun areItemsTheSame(oldItem: DogImageUiModel, newItem: DogImageUiModel) =
+    private class DiffCallback : DiffUtil.ItemCallback<DogItemUiModel>() {
+        override fun areItemsTheSame(oldItem: DogItemUiModel, newItem: DogItemUiModel) =
             oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: DogImageUiModel, newItem: DogImageUiModel) =
+        override fun areContentsTheSame(oldItem: DogItemUiModel, newItem: DogItemUiModel) =
             oldItem == newItem
     }
 
@@ -74,7 +74,7 @@ class DogListAdapter(
 
     inner class ExpandedWithImageViewHolder(private val binding: AdapterDogListItemBinding) :
         ViewHolder(binding.root) {
-        override fun bind(item: DogImageUiModel) {
+        override fun bind(item: DogItemUiModel) {
             binding.root.setOnClickListener { onItemClick(item) }
             binding.tvName.text = item.breedName
             with(binding.ivImage) {
@@ -86,7 +86,7 @@ class DogListAdapter(
 
     inner class CollapsedWithInfoViewHolder(private val binding: AdapterDogSearchItemBinding) :
         ViewHolder(binding.root) {
-        override fun bind(item: DogImageUiModel) {
+        override fun bind(item: DogItemUiModel) {
             binding.root.setOnClickListener { onItemClick(item) }
             binding.tvName.text = item.breedName
             binding.tvGroup.text = item.breedGroup
@@ -97,6 +97,6 @@ class DogListAdapter(
 
     abstract inner class ViewHolder(private val rootView: View) :
         RecyclerView.ViewHolder(rootView) {
-        abstract fun bind(item: DogImageUiModel)
+        abstract fun bind(item: DogItemUiModel)
     }
 }

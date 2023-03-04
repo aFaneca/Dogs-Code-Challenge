@@ -2,17 +2,22 @@ package com.afaneca.dogscodechallenge.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
+import com.afaneca.dogscodechallenge.common.Resource
+import com.afaneca.dogscodechallenge.domain.usecase.SearchDogBreedsUseCase
+import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor() : ViewModel() {
+class SearchViewModel @Inject constructor(
+    private val searchDogBreedsUseCase: SearchDogBreedsUseCase
+) : ViewModel() {
 
     private val _state = MutableStateFlow(SearchState())
     val state = _state.asStateFlow()
@@ -29,46 +34,41 @@ class SearchViewModel @Inject constructor() : ViewModel() {
 
     private fun getSearchResults(searchQuery: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO
-            _state.value = _state.value.copy(isLoading = true)
-            delay(2000)
-            _state.value = _state.value.copy(
-                isLoading = false,
-                listItems = listOf(
-                    DogImageUiModel(
-                        "1",
-                        "Breed 1",
-                        "Group 1",
-                        "Origin 1",
-                        "Temperament 1",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    ),
-                    DogImageUiModel(
-                        "2",
-                        "Breed 2",
-                        "Group 2",
-                        "Origin 2",
-                        "Temperament 2",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    ),
-                    DogImageUiModel(
-                        "3",
-                        "Breed 3",
-                        "Group 3",
-                        "Origin 3",
-                        "Temperament 3",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    ),
-                    DogImageUiModel(
-                        "4",
-                        "Breed 4",
-                        "Group 4",
-                        "Origin 4",
-                        "Temperament 4",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    )
-                )
-            )
+            searchDogBreedsUseCase(
+                query = searchQuery,
+                page = _state.value.page
+            ).onEach {
+                when (it) {
+                    is Resource.Success -> {
+                        val pageData = it.data?.map { item -> DogItemUiModel.mapFromDomain(item) }
+                        if (pageData != null) {
+                            _state.value = _state.value.copy(
+                                listItems = _state.value.listItems?.plus(pageData) ?: pageData,
+                                isLoading = false,
+                                isLoadingFromPagination = false,
+                                error = null,
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            isLoadingFromPagination = false,
+                            error = it.message,
+                        )
+                    }
+                    is Resource.Loading -> {
+                        if (_state.value.listItems.isNullOrEmpty()) {
+                            // First load
+                            _state.value = _state.value.copy(isLoading = true, error = null)
+                        } else {
+                            // Pagination loading
+                            _state.value =
+                                _state.value.copy(isLoadingFromPagination = true, error = null)
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope)
         }
     }
 
@@ -82,6 +82,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
 
     fun onQuerySubmitted(query: String?) {
         if (query.isNullOrEmpty()) return
+        _state.value = _state.value.copy(searchQuery = query)
         resetListState()
         getSearchResults(query)
     }
