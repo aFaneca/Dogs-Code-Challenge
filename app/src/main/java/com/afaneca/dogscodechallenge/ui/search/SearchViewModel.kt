@@ -23,7 +23,8 @@ class SearchViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private fun resetListState() {
-        _state.value = _state.value.copy(listItems = null, page = 0)
+        _state.value =
+            _state.value.copy(listItems = null, page = 0, hasReachedPaginationEnd = false)
     }
 
     private fun incrementPageNumber() {
@@ -40,13 +41,15 @@ class SearchViewModel @Inject constructor(
             ).onEach {
                 when (it) {
                     is Resource.Success -> {
-                        val pageData = it.data?.map { item -> DogItemUiModel.mapFromDomain(item) }
+                        val pageData =
+                            it.data?.list?.map { item -> DogItemUiModel.mapFromDomain(item) }
                         if (pageData != null) {
                             _state.value = _state.value.copy(
                                 listItems = _state.value.listItems?.plus(pageData) ?: pageData,
                                 isLoading = false,
                                 isLoadingFromPagination = false,
                                 error = null,
+                                hasReachedPaginationEnd = it.data.hasReachedPaginationEnd
                             )
                         }
                     }
@@ -73,6 +76,7 @@ class SearchViewModel @Inject constructor(
     }
 
     fun requestNextPage() {
+        if (_state.value.hasReachedPaginationEnd) return
         // increment page number
         incrementPageNumber()
 

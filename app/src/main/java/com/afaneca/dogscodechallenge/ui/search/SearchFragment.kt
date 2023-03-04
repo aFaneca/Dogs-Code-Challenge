@@ -101,7 +101,7 @@ class SearchFragment : Fragment() {
                     !state.isLoading && state.listItems != null && state.listItems.isEmpty()
 
                 // Recycler View
-                binding.rvList.isVisible = !state.listItems.isNullOrEmpty()
+                binding.rvList.isVisible = !state.listItems.isNullOrEmpty() && !state.isLoading
                 state.listItems?.let { setupRecyclerView(it) }
             }.launchIn(lifecycleScope)
     }

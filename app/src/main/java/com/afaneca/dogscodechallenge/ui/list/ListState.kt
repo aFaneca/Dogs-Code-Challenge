@@ -26,6 +26,7 @@ data class ListState(
     val listItems: List<DogItemUiModel>? = null,
     val page: Int = 0,
     val error: String? = null,
+    val hasReachedPaginationEnd: Boolean = false,
 )
 
 fun ListOrder.mapToDomain() = when (this) {

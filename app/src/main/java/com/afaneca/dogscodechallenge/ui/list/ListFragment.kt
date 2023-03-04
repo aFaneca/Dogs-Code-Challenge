@@ -15,6 +15,7 @@ import com.afaneca.dogscodechallenge.R
 import com.afaneca.dogscodechallenge.databinding.FragmentListBinding
 import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -110,20 +111,23 @@ class ListFragment : Fragment() {
 
     private fun toggleListOrder() {
         viewModel.toggleListOrder()
+        (binding.rvList.adapter as DogListAdapter).submitList(emptyList())
     }
 
     private fun observeState() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
+                // Loading
                 binding.pbLoading.root.isVisible = state.isLoading
                 binding.pbPaginationLoading.isVisible = state.isLoadingFromPagination
-                if (!state.listItems.isNullOrEmpty()) {
-                    binding.rvList.isVisible = true
-                    setupRecyclerView(state.listItems)
-                }
+
+                // Recycler View
+                binding.rvList.isVisible = !state.listItems.isNullOrEmpty() && !state.isLoading
+                state.listItems?.let { setupRecyclerView(it) }
             }.launchIn(lifecycleScope)
 
         viewModel.actionBarState.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .distinctUntilChanged()
             .onEach { state ->
                 refreshActionBar()
                 refreshRecyclerLayoutManager(state.listLayout)
