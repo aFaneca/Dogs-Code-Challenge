@@ -31,17 +31,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <!--<include
-        android:id="@+id/pb_pagination_loading"
-        layout="@layout/include_progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />-->
-
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/pb_pagination_loading"
         android:layout_width="wrap_content"

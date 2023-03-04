@@ -3,4 +3,9 @@
     <string name="title_list">Explore</string>
     <string name="title_search">Search</string>
     <string name="list_toolbar_change_view">Toggle view</string>
+    <string name="search_empty_text">Input your search query above and let the magic happen!</string>
+    <string name="search_empty_text_no_results">No results found :( \nTry searching for something else!</string>
+    <string name="dog">Dog</string>
+    <string name="group">Group</string>
+    <string name="origin">Origin</string>
 </resources>

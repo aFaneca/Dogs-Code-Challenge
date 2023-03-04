@@ -153,7 +153,7 @@ class ListFragment : Fragment() {
         if (binding.rvList.adapter == null) {
             // setup
             binding.rvList.apply {
-                adapter = DogListAdapter {
+                adapter = DogListAdapter(ListViewType.ExpandedWithImage) {
                     // TODO - click listener to details
                 }
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
