@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Dogs Code Challenge</string>
+    <string name="title_list">Explorar</string>
+    <string name="title_search">Pesquisar</string>
+</resources>
