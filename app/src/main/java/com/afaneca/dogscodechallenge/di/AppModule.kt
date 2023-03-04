@@ -3,6 +3,8 @@ package com.afaneca.dogscodechallenge.di
 import com.afaneca.dogscodechallenge.BuildConfig
 import com.afaneca.dogscodechallenge.common.Constants
 import com.afaneca.dogscodechallenge.data.remote.DogApi
+import com.afaneca.dogscodechallenge.data.repository.LiveDogBreedsRepository
+import com.afaneca.dogscodechallenge.domain.repository.DogBreedsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +17,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object  AppModule {
+object AppModule {
 
     //region HTTP
     @Provides
@@ -26,25 +28,26 @@ object  AppModule {
         if (BuildConfig.DEBUG) {
             logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         } else logging.setLevel(HttpLoggingInterceptor.Level.NONE)
-        return OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .addInterceptor { chain ->
+        return OkHttpClient.Builder().addInterceptor(logging).addInterceptor { chain ->
                 // Inject x-api-key header into every outgoing request
                 chain.proceed(chain.request().newBuilder().also {
                     it.addHeader("x-api-key", BuildConfig.DOG_API_KEY)
                 }.build())
-            }
-            .build()
+            }.build()
     }
 
     @Provides
     @Singleton
-    fun provideAfaScoreApi(httpClient: OkHttpClient): DogApi = Retrofit.Builder()
-        .baseUrl(Constants.API_BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .client(httpClient)
-        .build()
-        .create(DogApi::class.java)
+    fun provideDogApi(httpClient: OkHttpClient): DogApi =
+        Retrofit.Builder().baseUrl(Constants.API_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()).client(httpClient).build()
+            .create(DogApi::class.java)
 
+    //endregion
+
+    //region repositories
+    @Provides
+    @Singleton
+    fun provideDogBreedsRepository(api: DogApi): DogBreedsRepository = LiveDogBreedsRepository(api)
     //endregion
 }

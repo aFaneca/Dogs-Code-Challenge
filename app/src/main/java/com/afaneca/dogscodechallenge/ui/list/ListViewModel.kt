@@ -2,17 +2,22 @@ package com.afaneca.dogscodechallenge.ui.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.afaneca.dogscodechallenge.ui.models.DogImage
+import com.afaneca.dogscodechallenge.common.Resource
+import com.afaneca.dogscodechallenge.domain.usecase.ExploreDogImagesUseCase
+import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ListViewModel @Inject constructor() : ViewModel() {
+class ListViewModel @Inject constructor(
+    private val exploreDogImagesUseCase: ExploreDogImagesUseCase
+) : ViewModel() {
 
     private val _state = MutableStateFlow(ListState())
     val state = _state.asStateFlow()
@@ -26,47 +31,27 @@ class ListViewModel @Inject constructor() : ViewModel() {
 
     private fun getBreedImages() {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.value = _state.value.copy(isLoading = true)
-            delay(2000)
-            _state.value = _state.value.copy(
-                isLoading = false,
-                listItems = listOf(
-                    DogImage(
-                        "1",
-                        "Breed 1",
-                        "Group 1",
-                        "Origin 1",
-                        "Temperament 1",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    ),
-                    DogImage(
-                        "2",
-                        "Breed 2",
-                        "Group 2",
-                        "Origin 2",
-                        "Temperament 2",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    ),
-                    DogImage(
-                        "3",
-                        "Breed 3",
-                        "Group 3",
-                        "Origin 3",
-                        "Temperament 3",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    ),
-                    DogImage(
-                        "4",
-                        "Breed 4",
-                        "Group 4",
-                        "Origin 4",
-                        "Temperament 4",
-                        "https://cdn2.thedogapi.com/images/SyfsC19NQ_1280.jpg"
-                    )
-                )
-            )
+            exploreDogImagesUseCase(_actionBarState.value.listOrder.mapToDomain()).onEach {
+                when (it) {
+                    is Resource.Success -> {
+                        _state.value = _state.value.copy(
+                            listItems = it.data?.map { item -> DogImageUiModel.mapFromDomain(item) },
+                            isLoading = false, error = null
+                        )
+                    }
+                    is Resource.Error -> {
+                        _state.value = _state.value.copy(isLoading = false, error = it.message)
+                    }
+                    is Resource.Loading -> {
+                        _state.value = _state.value.copy(isLoading = true, error = null)
+                    }
+                }
+            }.launchIn(viewModelScope)
+
             if (_actionBarState.value.listLayout == ListLayout.None)
                 _actionBarState.value = _actionBarState.value.copy(listLayout = ListLayout.List)
+            if (_actionBarState.value.listOrder == ListOrder.None)
+                _actionBarState.value = _actionBarState.value.copy(listOrder = ListOrder.Ascending)
         }
     }
 
@@ -76,5 +61,16 @@ class ListViewModel @Inject constructor() : ViewModel() {
                 listLayout = if (this.listLayout == ListLayout.List) ListLayout.Grid else ListLayout.List
             )
         }
+    }
+
+    fun toggleListOrder() {
+        _actionBarState.value = with(_actionBarState.value) {
+            copy(
+                listOrder = if (this.listOrder == ListOrder.Ascending) ListOrder.Descending else ListOrder.Ascending,
+            )
+        }
+        // reset list
+        _state.value = _state.value.copy(listItems = null, page = 1)
+        getBreedImages()
     }
 }

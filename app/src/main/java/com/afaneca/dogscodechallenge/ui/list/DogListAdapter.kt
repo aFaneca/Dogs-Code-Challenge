@@ -1,6 +1,5 @@
 package com.afaneca.dogscodechallenge.ui.list
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncDifferConfig
@@ -8,23 +7,22 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.databinding.AdapterDogListItemBinding
-import com.afaneca.dogscodechallenge.ui.models.DogImage
+import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
 import com.afaneca.dogscodechallenge.ui.utils.ImageLoader
 
 class DogListAdapter(
-    private val context: Context,
-    val onItemClick: (item: DogImage) -> Unit
-) : ListAdapter<DogImage, DogListAdapter.ViewHolder>(
-    AsyncDifferConfig.Builder<DogImage>(
+    val onItemClick: (item: DogImageUiModel) -> Unit
+) : ListAdapter<DogImageUiModel, DogListAdapter.ViewHolder>(
+    AsyncDifferConfig.Builder(
         DiffCallback()
     ).build()
 ) {
 
-    private class DiffCallback : DiffUtil.ItemCallback<DogImage>() {
-        override fun areItemsTheSame(oldItem: DogImage, newItem: DogImage) =
+    private class DiffCallback : DiffUtil.ItemCallback<DogImageUiModel>() {
+        override fun areItemsTheSame(oldItem: DogImageUiModel, newItem: DogImageUiModel) =
             oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: DogImage, newItem: DogImage) =
+        override fun areContentsTheSame(oldItem: DogImageUiModel, newItem: DogImageUiModel) =
             oldItem == newItem
     }
 
@@ -45,10 +43,10 @@ class DogListAdapter(
 
     inner class ViewHolder(private val binding: AdapterDogListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: DogImage) {
+        fun bind(item: DogImageUiModel) {
             binding.tvName.text = item.breedName
             with(binding.ivImage) {
-                ImageLoader.loadImageIntoView(context, item.imgUrl, this)
+                ImageLoader.loadImageIntoView(context, item.imgUrl ?: "", this)
             }
 
         }

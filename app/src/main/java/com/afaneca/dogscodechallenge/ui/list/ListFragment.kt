@@ -12,20 +12,62 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.afaneca.dogscodechallenge.R
 import com.afaneca.dogscodechallenge.databinding.FragmentListBinding
-import com.afaneca.dogscodechallenge.ui.models.DogImage
+import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+@AndroidEntryPoint
 class ListFragment : Fragment() {
 
     private lateinit var binding: FragmentListBinding
     private val viewModel: ListViewModel by viewModels()
 
-    private val gridMenuProvider = object : MenuProvider {
+    private val listMenuProvider = object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(
-                R.menu.list_toolbar_menu_grid, menu
+                R.menu.list_toolbar_menu, menu
             )
+        }
+
+        override fun onPrepareMenu(menu: Menu) {
+            super.onPrepareMenu(menu)
+            with(viewModel.actionBarState) {
+                // List Layout
+                when (this.value.listLayout) {
+                    is ListLayout.List -> {
+                        menu.findItem(R.id.action_toggle_view)
+                            .isVisible = true
+                        menu.findItem(R.id.action_toggle_view)
+                            .setIcon(R.drawable.ic_dashboard_white_24dp)
+                    }
+                    is ListLayout.Grid -> {
+                        menu.findItem(R.id.action_toggle_view)
+                            .isVisible = true
+                        menu.findItem(R.id.action_toggle_view)
+                            .setIcon(R.drawable.ic_reorder)
+                    }
+                    else -> {
+                        menu.findItem(R.id.action_toggle_view)
+                            .isVisible = false
+                    }
+                }
+
+                // List Order
+                when (this.value.listOrder) {
+                    is ListOrder.Ascending -> {
+                        menu.findItem(R.id.action_toggle_order).isVisible = true
+                        menu.findItem(R.id.action_toggle_order).setIcon(R.drawable.ic_move_up)
+                    }
+                    is ListOrder.Descending -> {
+                        menu.findItem(R.id.action_toggle_order).isVisible = true
+                        menu.findItem(R.id.action_toggle_order).setIcon(R.drawable.ic_move_down)
+                    }
+                    else -> {
+                        menu.findItem(R.id.action_toggle_order).isVisible = false
+                    }
+                }
+            }
         }
 
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -34,22 +76,8 @@ class ListFragment : Fragment() {
                     toggleListLayout()
                     true
                 }
-                else -> false
-            }
-        }
-    }
-
-    private val listMenuProvider = object : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            menuInflater.inflate(
-                R.menu.list_toolbar_menu_list, menu
-            )
-        }
-
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-            return when (menuItem.itemId) {
-                R.id.action_toggle_view -> {
-                    toggleListLayout()
+                R.id.action_toggle_order -> {
+                    toggleListOrder()
                     true
                 }
                 else -> false
@@ -62,12 +90,16 @@ class ListFragment : Fragment() {
     ): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
         observeState()
-
+        requireActivity().addMenuProvider(listMenuProvider)
         return binding.root
     }
 
     private fun toggleListLayout() {
         viewModel.toggleListLayout()
+    }
+
+    private fun toggleListOrder() {
+        viewModel.toggleListOrder()
     }
 
     private fun observeState() {
@@ -82,7 +114,7 @@ class ListFragment : Fragment() {
 
         viewModel.actionBarState.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
-                refreshActionBar(state.listLayout)
+                refreshActionBar()
                 refreshRecyclerLayoutManager(state.listLayout)
             }.launchIn(lifecycleScope)
     }
@@ -100,40 +132,19 @@ class ListFragment : Fragment() {
 
 
     /**
-     * Refreshes the visibility of the action bar icons, depending on the current [ListLayout] state
+     * Invalidates current options menu state, forcing a refresh of the [listMenuProvider] state
      */
-    private fun refreshActionBar(listLayout: ListLayout) {
-        when (listLayout) {
-            is ListLayout.List -> {
-                requireActivity().removeMenuProvider(listMenuProvider)
-                requireActivity().removeMenuProvider(gridMenuProvider)
-                requireActivity().addMenuProvider(
-                    listMenuProvider,
-                    viewLifecycleOwner,
-                    Lifecycle.State.STARTED
-                )
-            }
-            is ListLayout.Grid -> {
-                requireActivity().removeMenuProvider(gridMenuProvider)
-                requireActivity().removeMenuProvider(listMenuProvider)
-                requireActivity().addMenuProvider(
-                    gridMenuProvider,
-                    viewLifecycleOwner,
-                    Lifecycle.State.STARTED
-                )
-            }
-            else -> {
-                requireActivity().removeMenuProvider(listMenuProvider)
-                requireActivity().removeMenuProvider(gridMenuProvider)
-            }
-        }
+    private fun refreshActionBar() {
+        requireActivity().invalidateOptionsMenu()
     }
 
-    private fun setupRecyclerView(list: List<DogImage>) {
+    private fun setupRecyclerView(list: List<DogImageUiModel>) {
         if (binding.rvList.adapter == null) {
             // setup
             binding.rvList.apply {
-                adapter = DogListAdapter(context) {}
+                adapter = DogListAdapter {
+                    // TODO - click listener to details
+                }
             }
         }
         // refresh data

@@ -6,5 +6,11 @@
         android:id="@+id/action_toggle_view"
         android:icon="@drawable/ic_reorder"
         android:title="@string/list_toolbar_change_view"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_toggle_order"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/list_toolbar_change_view"
+        app:showAsAction="ifRoom" />
 </menu>

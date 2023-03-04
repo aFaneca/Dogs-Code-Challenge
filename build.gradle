@@ -8,7 +8,7 @@ buildscript {
         coroutines_lifecycle_version = '2.5.1'
         room_version = '2.5.0'
         glide_version = '4.12.0'
-        nav_version = '2.3.5'
+        nav_version = '2.5.3'
     }
 
     repositories {
