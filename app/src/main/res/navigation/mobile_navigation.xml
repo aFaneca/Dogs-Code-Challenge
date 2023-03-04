@@ -9,12 +9,12 @@
         android:id="@+id/navigation_home"
         android:name="com.afaneca.dogscodechallenge.ui.list.ListFragment"
         android:label="@string/title_list"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_list" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.afaneca.dogscodechallenge.ui.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_search" />
 
 </navigation>

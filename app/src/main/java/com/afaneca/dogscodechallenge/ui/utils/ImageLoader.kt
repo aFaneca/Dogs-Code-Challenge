@@ -2,6 +2,7 @@ package com.afaneca.dogscodechallenge.ui.utils
 
 import android.content.Context
 import android.widget.ImageView
+import com.afaneca.dogscodechallenge.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 
@@ -15,6 +16,7 @@ object ImageLoader {
         Glide.with(context)
             .load(url)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .placeholder(R.drawable.ic_dashboard_white_24dp)
             .into(view)
     }
 }
