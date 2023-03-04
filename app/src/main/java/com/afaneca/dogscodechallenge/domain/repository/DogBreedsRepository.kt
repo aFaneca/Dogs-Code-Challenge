@@ -6,5 +6,5 @@ import com.afaneca.dogscodechallenge.domain.model.DogImagesOrder
 
 interface DogBreedsRepository {
 
-    suspend fun exploreDogImages(order: DogImagesOrder): Resource<List<DogImage>>
+    suspend fun exploreDogImages(page: Int, order: DogImagesOrder): Resource<List<DogImage>>
 }

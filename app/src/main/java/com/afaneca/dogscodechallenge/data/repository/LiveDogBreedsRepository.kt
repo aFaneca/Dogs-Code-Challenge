@@ -11,10 +11,13 @@ import javax.inject.Inject
 class LiveDogBreedsRepository @Inject constructor(
     private val dogApi: DogApi
 ) : DogBreedsRepository {
-    override suspend fun exploreDogImages(order: DogImagesOrder): Resource<List<DogImage>> {
+    override suspend fun exploreDogImages(
+        page: Int,
+        order: DogImagesOrder
+    ): Resource<List<DogImage>> {
         return try {
             Resource.Success(
-                dogApi.exploreDogImages(order = order.tag)
+                dogApi.exploreDogImages(page = page, order = order.tag)
                     .map { result -> result.mapToDomain() })
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "")

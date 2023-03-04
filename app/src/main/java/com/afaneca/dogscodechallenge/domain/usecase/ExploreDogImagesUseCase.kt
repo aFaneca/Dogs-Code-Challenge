@@ -12,10 +12,10 @@ class ExploreDogImagesUseCase @Inject constructor(
     private val dogBreedsRepository: DogBreedsRepository
 ) {
 
-    suspend operator fun invoke(order: DogImagesOrder): Flow<Resource<List<DogImage>>> =
+    suspend operator fun invoke(page: Int, order: DogImagesOrder): Flow<Resource<List<DogImage>>> =
         flow {
             emit(Resource.Loading())
-            when (val response = dogBreedsRepository.exploreDogImages(order)) {
+            when (val response = dogBreedsRepository.exploreDogImages(page, order)) {
                 is Resource.Success -> {
                     emit(Resource.Success(response.data ?: emptyList()))
                 }

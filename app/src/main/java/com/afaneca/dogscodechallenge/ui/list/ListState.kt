@@ -22,8 +22,9 @@ data class ListActionBarState(
 
 data class ListState(
     val isLoading: Boolean = false,
+    val isLoadingFromPagination: Boolean = false,
     val listItems: List<DogImageUiModel>? = null,
-    val page: Int = 1,
+    val page: Int = 0,
     val error: String? = null,
 )
 

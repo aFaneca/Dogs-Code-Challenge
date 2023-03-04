@@ -31,19 +31,39 @@ class ListViewModel @Inject constructor(
 
     private fun getBreedImages() {
         viewModelScope.launch(Dispatchers.IO) {
-            exploreDogImagesUseCase(_actionBarState.value.listOrder.mapToDomain()).onEach {
+            exploreDogImagesUseCase(
+                page = _state.value.page,
+                order = _actionBarState.value.listOrder.mapToDomain()
+            ).onEach {
                 when (it) {
                     is Resource.Success -> {
-                        _state.value = _state.value.copy(
-                            listItems = it.data?.map { item -> DogImageUiModel.mapFromDomain(item) },
-                            isLoading = false, error = null
-                        )
+                        val pageData = it.data?.map { item -> DogImageUiModel.mapFromDomain(item) }
+                        if (!pageData.isNullOrEmpty()) {
+                            _state.value = _state.value.copy(
+                                listItems = _state.value.listItems?.plus(pageData) ?: pageData,
+                                isLoading = false,
+                                isLoadingFromPagination = false,
+                                error = null,
+                            )
+                        }
                     }
                     is Resource.Error -> {
-                        _state.value = _state.value.copy(isLoading = false, error = it.message)
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            isLoadingFromPagination = false,
+                            error = it.message
+                        )
                     }
                     is Resource.Loading -> {
-                        _state.value = _state.value.copy(isLoading = true, error = null)
+                        if (_state.value.listItems.isNullOrEmpty()) {
+                            // First load
+                            _state.value = _state.value.copy(isLoading = true, error = null)
+                        } else {
+                            // Pagination loading
+                            _state.value =
+                                _state.value.copy(isLoadingFromPagination = true, error = null)
+                        }
+
                     }
                 }
             }.launchIn(viewModelScope)
@@ -52,6 +72,16 @@ class ListViewModel @Inject constructor(
                 _actionBarState.value = _actionBarState.value.copy(listLayout = ListLayout.List)
             if (_actionBarState.value.listOrder == ListOrder.None)
                 _actionBarState.value = _actionBarState.value.copy(listOrder = ListOrder.Ascending)
+        }
+    }
+
+    private fun resetListState() {
+        _state.value = _state.value.copy(listItems = null, page = 0)
+    }
+
+    private fun incrementPageNumber() {
+        with(_state.value) {
+            _state.value = this.copy(page = this.page + 1)
         }
     }
 
@@ -70,7 +100,17 @@ class ListViewModel @Inject constructor(
             )
         }
         // reset list
-        _state.value = _state.value.copy(listItems = null, page = 1)
+        resetListState()
+
+        // get items
+        getBreedImages()
+    }
+
+    fun requestNextPage() {
+        // increment page number
+        incrementPageNumber()
+
+        // get more items
         getBreedImages()
     }
 }

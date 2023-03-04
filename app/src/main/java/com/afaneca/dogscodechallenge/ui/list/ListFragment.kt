@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.R
 import com.afaneca.dogscodechallenge.databinding.FragmentListBinding
 import com.afaneca.dogscodechallenge.ui.model.DogImageUiModel
@@ -90,8 +91,17 @@ class ListFragment : Fragment() {
     ): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
         observeState()
-        requireActivity().addMenuProvider(listMenuProvider)
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().addMenuProvider(listMenuProvider)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().removeMenuProvider(listMenuProvider)
     }
 
     private fun toggleListLayout() {
@@ -106,6 +116,7 @@ class ListFragment : Fragment() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
                 binding.pbLoading.root.isVisible = state.isLoading
+                binding.pbPaginationLoading.isVisible = state.isLoadingFromPagination
                 if (!state.listItems.isNullOrEmpty()) {
                     binding.rvList.isVisible = true
                     setupRecyclerView(state.listItems)
@@ -145,6 +156,14 @@ class ListFragment : Fragment() {
                 adapter = DogListAdapter {
                     // TODO - click listener to details
                 }
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (!recyclerView.canScrollVertically(1) && dy > 0) {
+                            //scrolled to BOTTOM
+                            viewModel.requestNextPage()
+                        }
+                    }
+                })
             }
         }
         // refresh data

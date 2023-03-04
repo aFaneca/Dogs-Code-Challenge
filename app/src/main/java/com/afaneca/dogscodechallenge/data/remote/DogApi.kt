@@ -10,6 +10,7 @@ interface DogApi {
     @GET("images/search")
     suspend fun exploreDogImages(
         @Query("order") order: String? = "",
+        @Query("page") page: Int,
         @Query("limit") limit: Int = DEFAULT_PAGE_SIZE,
         @Query("has_breeds") hasBreeds: Int = 1,
     ): List<DogImageEntity>
