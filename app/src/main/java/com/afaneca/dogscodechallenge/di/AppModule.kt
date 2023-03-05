@@ -3,11 +3,16 @@ package com.afaneca.dogscodechallenge.di
 import android.content.Context
 import androidx.room.Room
 import com.afaneca.dogscodechallenge.BuildConfig
+import com.afaneca.dogscodechallenge.common.AppDispatchers
 import com.afaneca.dogscodechallenge.common.Constants
+import com.afaneca.dogscodechallenge.data.local.DogsLocalDataSource
+import com.afaneca.dogscodechallenge.data.local.RoomDogsLocalDataSource
 import com.afaneca.dogscodechallenge.data.local.db.DogDatabase
 import com.afaneca.dogscodechallenge.data.local.db.breed.BreedDao
 import com.afaneca.dogscodechallenge.data.local.db.dog.DogDao
+import com.afaneca.dogscodechallenge.data.remote.ApiDogsRemoteDataSource
 import com.afaneca.dogscodechallenge.data.remote.DogApi
+import com.afaneca.dogscodechallenge.data.remote.DogsRemoteDataSource
 import com.afaneca.dogscodechallenge.data.repository.LiveDogBreedsRepository
 import com.afaneca.dogscodechallenge.domain.repository.DogBreedsRepository
 import dagger.Module
@@ -15,6 +20,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -55,10 +61,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDogBreedsRepository(
-        api: DogApi,
-        dogDao: DogDao,
-        breedDao: BreedDao
-    ): DogBreedsRepository = LiveDogBreedsRepository(dogDao, breedDao, api)
+        localDataSource: DogsLocalDataSource,
+        remoteDataSource: DogsRemoteDataSource
+    ): DogBreedsRepository = LiveDogBreedsRepository(localDataSource, remoteDataSource)
     //endregion
 
     //region DB
@@ -74,5 +79,23 @@ object AppModule {
     @Provides
     @Singleton
     fun provideBreedDao(db: DogDatabase) = db.breedDao()
+    //endregion
+
+    //region Data Sources
+    @Provides
+    @Singleton
+    fun provideDogsLocalDataSource(dogDao: DogDao, breedDao: BreedDao): DogsLocalDataSource =
+        RoomDogsLocalDataSource(dogDao, breedDao)
+
+    @Provides
+    @Singleton
+    fun provideDogsRemoteDataSource(dogApi: DogApi): DogsRemoteDataSource =
+        ApiDogsRemoteDataSource(dogApi)
+    //endregion
+
+    //region misc
+    @Provides
+    @Singleton
+    fun provideAppDispatchers(): AppDispatchers = AppDispatchers(Dispatchers.IO)
     //endregion
 }

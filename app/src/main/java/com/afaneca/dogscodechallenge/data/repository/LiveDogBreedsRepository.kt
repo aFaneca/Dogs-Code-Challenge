@@ -3,13 +3,12 @@ package com.afaneca.dogscodechallenge.data.repository
 import com.afaneca.dogscodechallenge.common.Constants.DEFAULT_PAGE_SIZE
 import com.afaneca.dogscodechallenge.common.Constants.PAGINATION_COUNT_HEADER_KEY
 import com.afaneca.dogscodechallenge.common.Resource
-import com.afaneca.dogscodechallenge.data.local.db.breed.BreedDao
+import com.afaneca.dogscodechallenge.data.local.DogsLocalDataSource
 import com.afaneca.dogscodechallenge.data.local.db.breed.BreedEntity
 import com.afaneca.dogscodechallenge.data.local.db.breed.mapToDomain
-import com.afaneca.dogscodechallenge.data.local.db.dog.DogDao
 import com.afaneca.dogscodechallenge.data.local.db.dog.DogEntity
 import com.afaneca.dogscodechallenge.data.local.db.dog.mapToDomain
-import com.afaneca.dogscodechallenge.data.remote.DogApi
+import com.afaneca.dogscodechallenge.data.remote.DogsRemoteDataSource
 import com.afaneca.dogscodechallenge.data.remote.entity.mapToDomain
 import com.afaneca.dogscodechallenge.domain.model.*
 import com.afaneca.dogscodechallenge.domain.repository.DogBreedsRepository
@@ -17,9 +16,8 @@ import java.lang.Integer.parseInt
 import javax.inject.Inject
 
 class LiveDogBreedsRepository @Inject constructor(
-    private val cachedDogDao: DogDao,
-    private val cachedBreedDao: BreedDao,
-    private val dogApi: DogApi
+    private val localDataSource: DogsLocalDataSource,
+    private val remoteDataSource: DogsRemoteDataSource
 ) : DogBreedsRepository {
 
     //region dog images
@@ -28,7 +26,7 @@ class LiveDogBreedsRepository @Inject constructor(
         order: DogItemsOrder
     ): Resource<DogItemsPageWrapper> {
         return try {
-            val response = dogApi.exploreDogImages(page = page, order = order.tag)
+            val response = remoteDataSource.exploreDogImages(page = page, order = order.tag)
             val totalItems =
                 response.headers()[PAGINATION_COUNT_HEADER_KEY]?.let { parseInt(it) } ?: 0
             val totalPages = totalItems / DEFAULT_PAGE_SIZE
@@ -50,7 +48,7 @@ class LiveDogBreedsRepository @Inject constructor(
         page: Int,
         order: String
     ): DogItemsPageWrapper {
-        val results = cachedDogDao.getAllResultsInPage(page, order)
+        val results = localDataSource.getAllDogResultsInPage(page, order)
         return DogItemsPageWrapper(
             list = results.map { it.mapToDomain() },
             hasReachedPaginationEnd = false
@@ -62,7 +60,7 @@ class LiveDogBreedsRepository @Inject constructor(
         page: Int,
         order: String
     ) {
-        cachedDogDao.insertAll(list.map { DogEntity.mapFromDomain(it, page, order) })
+        localDataSource.insertAllDogs(list.map { DogEntity.mapFromDomain(it, page, order) })
     }
     //endregion
 
@@ -72,7 +70,7 @@ class LiveDogBreedsRepository @Inject constructor(
         page: Int
     ): Resource<BreedItemsPageWrapper> {
         return try {
-            val response = dogApi.searchBreeds(query = query, page = page)
+            val response = remoteDataSource.searchBreeds(query = query, page = page)
             val totalItems =
                 response.headers()[PAGINATION_COUNT_HEADER_KEY]?.let { parseInt(it) } ?: 0
             val totalPages = totalItems / DEFAULT_PAGE_SIZE
@@ -94,7 +92,7 @@ class LiveDogBreedsRepository @Inject constructor(
         query: String,
         page: Int
     ): BreedItemsPageWrapper {
-        val results = cachedBreedDao.getAllQueryResultsInPage(query, page)
+        val results = localDataSource.getAllBreedQueryResultsInPage(query, page)
         return BreedItemsPageWrapper(
             list = results.map { it.mapToDomain() },
             hasReachedPaginationEnd = false
@@ -106,7 +104,7 @@ class LiveDogBreedsRepository @Inject constructor(
         query: String,
         page: Int
     ) {
-        cachedBreedDao.insertAll(list.map { BreedEntity.mapFromDomain(it, query, page) })
+        localDataSource.insertAllBreeds(list.map { BreedEntity.mapFromDomain(it, query, page) })
     }
     //endregion
 }

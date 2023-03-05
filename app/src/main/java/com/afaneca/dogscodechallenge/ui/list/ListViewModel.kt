@@ -2,11 +2,11 @@ package com.afaneca.dogscodechallenge.ui.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.afaneca.dogscodechallenge.common.AppDispatchers
 import com.afaneca.dogscodechallenge.common.Resource
 import com.afaneca.dogscodechallenge.domain.usecase.ExploreDogImagesUseCase
 import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -16,6 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
+    private val appDispatchers: AppDispatchers,
     private val exploreDogImagesUseCase: ExploreDogImagesUseCase
 ) : ViewModel() {
 
@@ -30,7 +31,7 @@ class ListViewModel @Inject constructor(
     }
 
     private fun getBreedImages() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(appDispatchers.IO) {
             exploreDogImagesUseCase(
                 page = _state.value.page,
                 order = _actionBarState.value.listOrder.mapToDomain()
