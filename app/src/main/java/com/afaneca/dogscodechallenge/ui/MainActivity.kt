@@ -2,6 +2,7 @@ package com.afaneca.dogscodechallenge.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -42,5 +43,14 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
+
+    fun showTopError(message: String) {
+        binding.tvTopError.text = message
+        binding.cvTopError.isVisible = true
+    }
+
+    fun hideTopError() {
+        binding.cvTopError.isVisible = false
     }
 }

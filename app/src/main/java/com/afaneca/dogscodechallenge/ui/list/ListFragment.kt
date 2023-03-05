@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.R
 import com.afaneca.dogscodechallenge.databinding.FragmentListBinding
+import com.afaneca.dogscodechallenge.ui.MainActivity
 import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -123,8 +124,17 @@ class ListFragment : Fragment() {
                 binding.pbPaginationLoading.isVisible = state.isLoadingFromPagination
 
                 // Recycler View
-                binding.rvList.isVisible = !state.listItems.isNullOrEmpty() && !state.isLoading
+                binding.rvList.isVisible =
+                    !state.listItems.isNullOrEmpty() && !state.isLoading
+
                 state.listItems?.let { setupRecyclerView(it) }
+
+                // Error handling
+                if (!state.error.isNullOrBlank()) {
+                    handleError(state.error, !state.listItems.isNullOrEmpty())
+                } else {
+                    hideErrorContainers()
+                }
             }.launchIn(lifecycleScope)
 
         viewModel.actionBarState.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
@@ -133,6 +143,23 @@ class ListFragment : Fragment() {
                 refreshActionBar()
                 refreshRecyclerLayoutManager(state.listLayout)
             }.launchIn(lifecycleScope)
+    }
+
+    private fun hideErrorContainers() {
+        (requireActivity() as? MainActivity)?.hideTopError()
+        binding.errorView.root.isVisible = false
+    }
+
+    /**
+     * If [isShowingList] = true, will show a top bar error, otherwise it'll show a full container one
+     */
+    private fun handleError(error: String, isShowingList: Boolean) {
+        if (isShowingList) {
+            (requireActivity() as? MainActivity)?.showTopError(error)
+        } else {
+            binding.errorView.tvError.text = error
+            binding.errorView.root.isVisible = true
+        }
     }
 
     /**
