@@ -38,7 +38,6 @@ class SearchFragment : Fragment() {
                 R.menu.search_toolbar_menu, menu
             )
             val searchView = menu.findItem(R.id.action_search).actionView as SearchView
-            // Auto-fill with saved search query, if it exists
             searchView.setOnQueryTextListener(object : OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     viewModel.onQuerySubmitted(query)
@@ -118,7 +117,7 @@ class SearchFragment : Fragment() {
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         if (!recyclerView.canScrollVertically(1) && dy > 0) {
-                            //scrolled to BOTTOM
+                            // scrolled to BOTTOM
                             viewModel.requestNextPage()
                         }
                     }

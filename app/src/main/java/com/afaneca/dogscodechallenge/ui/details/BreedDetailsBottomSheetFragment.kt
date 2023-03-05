@@ -13,6 +13,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Dumb view. No state or business logic besides binding the data it receives to each view
+ */
 @AndroidEntryPoint
 class BreedDetailsBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentBreedDetailsBottomSheetBinding

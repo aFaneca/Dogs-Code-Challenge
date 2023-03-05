@@ -30,7 +30,6 @@ class DogEntity(
         fun mapFromDomain(domainModel: DogItem, page: Int, order: String) = DogEntity(
             id = domainModel.id,
             url = domainModel.url,
-            // TODO - make null safe
             name = domainModel.breeds.first().name ?: "",
             group = domainModel.breeds.first().breedGroup ?: "",
             origin = domainModel.breeds.first().origin ?: "",
