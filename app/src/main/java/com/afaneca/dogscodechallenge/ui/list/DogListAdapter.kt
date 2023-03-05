@@ -26,7 +26,6 @@ class DogListAdapter(
         DiffCallback()
     ).build()
 ) {
-
     private class DiffCallback : DiffUtil.ItemCallback<DogItemUiModel>() {
         override fun areItemsTheSame(oldItem: DogItemUiModel, newItem: DogItemUiModel) =
             oldItem.id == newItem.id
@@ -64,8 +63,6 @@ class DogListAdapter(
                 return ExpandedWithImageViewHolder(binding)
             }
         }
-
-
     }
 
     override fun onBindViewHolder(holder: DogListAdapter.ViewHolder, position: Int) {
@@ -81,7 +78,6 @@ class DogListAdapter(
             with(binding.ivImage) {
                 ImageLoader.loadImageIntoView(context, item.imgUrl ?: "", this)
             }
-
         }
     }
 
@@ -93,7 +89,6 @@ class DogListAdapter(
             binding.tvName.text = item.breedName.ifBlank { localizedUnknown }
             binding.tvGroup.text = item.breedGroup?.ifBlank { localizedUnknown } ?: localizedUnknown
             binding.tvOrigin.text = item.origin?.ifBlank { localizedUnknown } ?: localizedUnknown
-
         }
     }
 

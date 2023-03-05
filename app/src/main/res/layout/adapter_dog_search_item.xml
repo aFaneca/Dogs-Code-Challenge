@@ -4,18 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/margin_double">
+    android:paddingHorizontal="@dimen/margin_double"
+    android:paddingVertical="@dimen/margin">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/light_purple"
+        app:cardCornerRadius="@dimen/margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin">
 
             <ImageView
                 android:id="@+id/iv_icon"
@@ -29,11 +33,12 @@
 
             <TextView
                 android:id="@+id/tv_name"
-                android:layout_width="0dp"
                 style="@style/TextAppearance.AppCompat.Headline"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin"
+                android:layout_marginStart="@dimen/margin_double"
                 android:textAlignment="textStart"
+                android:textColor="@color/black"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/iv_icon"
@@ -48,14 +53,16 @@
                 android:contentDescription="@string/group"
                 android:src="@drawable/ic_workspace"
                 app:layout_constraintStart_toStartOf="@+id/tv_name"
-                app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_name"
+                app:tint="@color/darker_gray" />
 
             <TextView
                 android:id="@+id/tv_group"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textAlignment="textStart"
                 android:layout_marginStart="@dimen/margin_half"
+                android:textAlignment="textStart"
+                android:textColor="@color/darker_gray"
                 app:layout_constraintBottom_toBottomOf="@+id/iv_group"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/iv_group"
@@ -70,13 +77,15 @@
                 android:contentDescription="@string/origin"
                 android:src="@drawable/ic_globe"
                 app:layout_constraintStart_toStartOf="@+id/iv_group"
-                app:layout_constraintTop_toBottomOf="@+id/iv_group" />
+                app:layout_constraintTop_toBottomOf="@+id/iv_group"
+                app:tint="@color/darker_gray" />
 
             <TextView
                 android:id="@+id/tv_origin"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textAlignment="textStart"
+                android:textColor="@color/darker_gray"
                 app:layout_constraintBottom_toBottomOf="@+id/iv_origin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/tv_group"
