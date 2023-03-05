@@ -9,6 +9,7 @@
   - [Offline-first & pagination](#offline-first--pagination)
     - [Offline Support](#offline-support)
     - [Pagination](#pagination)
+  - [Unit tests](#unit-tests)
 - [Known Issues](#known-issues)
 - [What Could Be Improved](#what-could-be-improved) 
 
@@ -86,6 +87,12 @@ Every time I fetch remote data, I persist it locally to serve as a simple cache.
 For pagination, I implemented a simple scroll listener with some logic to trigger a new page request when the user has scrolled to the bottom of the list.
 
 For a smoother scrolling/lazy loading experience in a customer-facing app, this mechanism should be improved, by adding a custom threshold, so that we can request the next page a few moments before the user actually reaches the end of the list.
+
+## Unit tests
+I added unit tests to cover the most critical operations/state changes from these classes:
+- ListViewModel
+- SearchViewModel
+- DogBreedsRepository
 
 # Known Issues
 ## Search view pagination
