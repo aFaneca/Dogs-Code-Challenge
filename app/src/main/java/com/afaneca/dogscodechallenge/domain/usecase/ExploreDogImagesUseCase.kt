@@ -13,26 +13,40 @@ class ExploreDogImagesUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(
-        page: Int,
-        order: DogItemsOrder
-    ): Flow<Resource<DogItemsPageWrapper>> =
-        flow {
-            emit(Resource.Loading())
-            when (val response = dogBreedsRepository.exploreDogImages(page, order)) {
-                is Resource.Success -> {
-                    emit(
-                        Resource.Success(
-                            DogItemsPageWrapper(
-                                list = response.data?.list ?: emptyList(),
-                                hasReachedPaginationEnd = response.data?.hasReachedPaginationEnd == true
-                            )
-                        )
+        page: Int, order: DogItemsOrder
+    ): Flow<Resource<DogItemsPageWrapper>> = flow {
+        emit(Resource.Loading())
+        when (val response = dogBreedsRepository.getDogImagesFromRemote(page, order)) {
+            is Resource.Success -> {
+                // Cache results to local data source
+                response.data?.list?.let {
+                    dogBreedsRepository.insertDogImagesIntoLocalCache(
+                        it, page, order.tag
                     )
                 }
-                is Resource.Error -> {
-                    emit(Resource.Error(response.message ?: ""))
-                }
-                else -> {}
+
+                // Fetch final list from local data source (our single source of truth)
+                val cachedPage = dogBreedsRepository.getDogImagesFromLocalCache(
+                    page,
+                    order.tag
+                )
+                emit(Resource.Success(cachedPage))
             }
+            is Resource.Error -> {
+                // In case of failure (e.g. no internet), return the cached version, if it exists
+                val cachedPage = dogBreedsRepository.getDogImagesFromLocalCache(
+                    page,
+                    order.tag
+                )
+                if (cachedPage.list.isEmpty()) {
+                    // If cached version doesn't exist, emit error
+                    emit(Resource.Error(response.message ?: ""))
+                } else {
+                    emit(Resource.Success(cachedPage))
+                }
+
+            }
+            else -> {}
         }
+    }
 }

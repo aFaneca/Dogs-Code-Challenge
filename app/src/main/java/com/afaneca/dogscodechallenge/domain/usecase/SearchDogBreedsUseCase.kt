@@ -14,21 +14,29 @@ class SearchDogBreedsUseCase @Inject constructor(
     suspend operator fun invoke(query: String, page: Int): Flow<Resource<BreedItemsPageWrapper>> =
         flow {
             emit(Resource.Loading())
-            when (val response = dogBreedsRepository.searchDogBreeds(query, page)) {
+            when (val response = dogBreedsRepository.getDogBreedsFromRemote(query, page)) {
                 is Resource.Success -> {
-                    emit(
-                        Resource.Success(
-                            BreedItemsPageWrapper(
-                                list = response.data?.list ?: emptyList(),
-                                hasReachedPaginationEnd = response.data?.hasReachedPaginationEnd == true
-                            )
-                        )
-                    )
+                    // Cache results to local data source
+                    response.data?.list?.let {
+                        dogBreedsRepository.insertDogBreedsIntoLocalCache(it, query, page)
+                    }
+
+                    // Fetch final list from local data source (our single source of truth)
+                    val cachedPage = dogBreedsRepository.getDogBreedsFromLocalCache(query, page)
+                    emit(Resource.Success(cachedPage))
                 }
                 is Resource.Error -> {
-                emit(Resource.Error(response.message ?: ""))
+                    // In case of failure (e.g. no internet), return the cached version, if it exists
+                    val cachedPage = dogBreedsRepository.getDogBreedsFromLocalCache(query, page)
+                    if (cachedPage.list.isEmpty()) {
+                        // If cached version doesn't exist, emit error
+                        emit(Resource.Error(response.message ?: ""))
+                    } else {
+                        emit(Resource.Success(cachedPage))
+                    }
+
+                }
+                else -> {}
             }
-            else -> {}
         }
-    }
 }
