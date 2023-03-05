@@ -48,6 +48,13 @@ class ListViewModel @Inject constructor(
                                 hasReachedPaginationEnd = it.data.hasReachedPaginationEnd
                             )
                         }
+
+                        if (_actionBarState.value.listLayout == ListLayout.None)
+                            _actionBarState.value =
+                                _actionBarState.value.copy(listLayout = ListLayout.List)
+                        if (_actionBarState.value.listOrder == ListOrder.None)
+                            _actionBarState.value =
+                                _actionBarState.value.copy(listOrder = ListOrder.Ascending)
                     }
                     is Resource.Error -> {
                         _state.value = _state.value.copy(
@@ -63,17 +70,12 @@ class ListViewModel @Inject constructor(
                         } else {
                             // Pagination loading
                             _state.value =
-                                _state.value.copy(isLoadingFromPagination = true, error = null)
+                                _state.value.copy(isLoadingFromPagination = true)
                         }
 
                     }
                 }
             }.launchIn(viewModelScope)
-
-            if (_actionBarState.value.listLayout == ListLayout.None)
-                _actionBarState.value = _actionBarState.value.copy(listLayout = ListLayout.List)
-            if (_actionBarState.value.listOrder == ListOrder.None)
-                _actionBarState.value = _actionBarState.value.copy(listOrder = ListOrder.Ascending)
         }
     }
 
