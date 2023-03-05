@@ -75,22 +75,11 @@ class SearchFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().addMenuProvider(searchMenuProvider)
-        updateActionBarTitleWithSearchQuery()
     }
 
     override fun onPause() {
         super.onPause()
         requireActivity().removeMenuProvider(searchMenuProvider)
-    }
-
-    private fun updateActionBarTitleWithSearchQuery() {
-        if (!viewModel.state.value.searchQuery.isNullOrEmpty()) {
-            (requireActivity() as? MainActivity)?.supportActionBar?.title =
-                getString(
-                    R.string.search_actionbar_title_with_query,
-                    viewModel.state.value.searchQuery
-                )
-        }
     }
 
     private fun observeState() {
