@@ -3,6 +3,7 @@ package com.afaneca.dogscodechallenge.di
 import android.content.Context
 import androidx.room.Room
 import com.afaneca.dogscodechallenge.BuildConfig
+import com.afaneca.dogscodechallenge.common.AppDispatchers
 import com.afaneca.dogscodechallenge.common.Constants
 import com.afaneca.dogscodechallenge.data.local.db.DogDatabase
 import com.afaneca.dogscodechallenge.data.local.db.breed.BreedDao
@@ -15,6 +16,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -74,5 +76,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideBreedDao(db: DogDatabase) = db.breedDao()
+    //endregion
+
+    //region misc
+    @Provides
+    @Singleton
+    fun provideAppDispatchers(): AppDispatchers = AppDispatchers(Dispatchers.IO)
     //endregion
 }
