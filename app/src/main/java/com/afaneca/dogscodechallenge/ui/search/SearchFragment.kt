@@ -12,7 +12,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.R
@@ -39,7 +38,6 @@ class SearchFragment : Fragment() {
                 R.menu.search_toolbar_menu, menu
             )
             val searchView = menu.findItem(R.id.action_search).actionView as SearchView
-            // Auto-fill with saved search query, if it exists
             searchView.setOnQueryTextListener(object : OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     viewModel.onQuerySubmitted(query)
@@ -75,13 +73,6 @@ class SearchFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().addMenuProvider(searchMenuProvider)
-        if (!viewModel.state.value.searchQuery.isNullOrEmpty()) {
-            (requireActivity() as MainActivity).supportActionBar?.title =
-                getString(
-                    R.string.search_actionbar_title_with_query,
-                    viewModel.state.value.searchQuery
-                )
-        }
     }
 
     override fun onPause() {
@@ -97,13 +88,21 @@ class SearchFragment : Fragment() {
                 binding.pbPaginationLoading.isVisible = state.isLoadingFromPagination
 
                 // Empty Views
-                binding.emptyView.root.isVisible = !state.isLoading && state.listItems == null
+                binding.emptyView.root.isVisible =
+                    !state.isLoading && state.listItems == null && state.error.isNullOrBlank()
                 binding.emptyViewNoResults.root.isVisible =
                     !state.isLoading && state.listItems != null && state.listItems.isEmpty()
 
                 // Recycler View
                 binding.rvList.isVisible = !state.listItems.isNullOrEmpty() && !state.isLoading
                 state.listItems?.let { setupRecyclerView(it) }
+
+                // Error handling
+                if (!state.error.isNullOrBlank()) {
+                    handleError(state.error, !state.listItems.isNullOrEmpty())
+                } else {
+                    hideErrorContainers()
+                }
             }.launchIn(lifecycleScope)
     }
 
@@ -112,14 +111,13 @@ class SearchFragment : Fragment() {
             // setup
             binding.rvList.apply {
                 adapter = DogListAdapter(ListViewType.CompactWithInfo) {
-                    showDetails(it)
+                    goToDetails(it)
                 }
                 layoutManager = LinearLayoutManager(context)
-                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL))
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         if (!recyclerView.canScrollVertically(1) && dy > 0) {
-                            //scrolled to BOTTOM
+                            // scrolled to BOTTOM
                             viewModel.requestNextPage()
                         }
                     }
@@ -130,7 +128,24 @@ class SearchFragment : Fragment() {
         (binding.rvList.adapter as DogListAdapter).submitList(list)
     }
 
-    private fun showDetails(model: DogItemUiModel) {
+    private fun hideErrorContainers() {
+        (requireActivity() as? MainActivity)?.hideTopError()
+        binding.errorView.root.isVisible = false
+    }
+
+    /**
+     * If [isShowingList] = true, will show a top bar error, otherwise it'll show a full container one
+     */
+    private fun handleError(error: String, isShowingList: Boolean) {
+        if (isShowingList) {
+            (requireActivity() as? MainActivity)?.showTopError(error)
+        } else {
+            binding.errorView.tvError.text = error
+            binding.errorView.root.isVisible = true
+        }
+    }
+
+    private fun goToDetails(model: DogItemUiModel) {
         val action =
             SearchFragmentDirections.actionNavigationDashboardToBreedDetailsBottomSheetFragment(
                 name = model.breedName,

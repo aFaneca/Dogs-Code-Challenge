@@ -1,14 +1,26 @@
 package com.afaneca.dogscodechallenge.di
 
+import android.content.Context
+import androidx.room.Room
 import com.afaneca.dogscodechallenge.BuildConfig
+import com.afaneca.dogscodechallenge.common.AppDispatchers
 import com.afaneca.dogscodechallenge.common.Constants
+import com.afaneca.dogscodechallenge.data.local.DogsLocalDataSource
+import com.afaneca.dogscodechallenge.data.local.RoomDogsLocalDataSource
+import com.afaneca.dogscodechallenge.data.local.db.DogDatabase
+import com.afaneca.dogscodechallenge.data.local.db.breed.BreedDao
+import com.afaneca.dogscodechallenge.data.local.db.dog.DogDao
+import com.afaneca.dogscodechallenge.data.remote.ApiDogsRemoteDataSource
 import com.afaneca.dogscodechallenge.data.remote.DogApi
+import com.afaneca.dogscodechallenge.data.remote.DogsRemoteDataSource
 import com.afaneca.dogscodechallenge.data.repository.LiveDogBreedsRepository
 import com.afaneca.dogscodechallenge.domain.repository.DogBreedsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -29,11 +41,11 @@ object AppModule {
             logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         } else logging.setLevel(HttpLoggingInterceptor.Level.NONE)
         return OkHttpClient.Builder().addInterceptor(logging).addInterceptor { chain ->
-                // Inject x-api-key header into every outgoing request
-                chain.proceed(chain.request().newBuilder().also {
-                    it.addHeader("x-api-key", BuildConfig.DOG_API_KEY)
-                }.build())
-            }.build()
+            // Inject x-api-key header into every outgoing request
+            chain.proceed(chain.request().newBuilder().also {
+                it.addHeader("x-api-key", BuildConfig.DOG_API_KEY)
+            }.build())
+        }.build()
     }
 
     @Provides
@@ -48,6 +60,42 @@ object AppModule {
     //region repositories
     @Provides
     @Singleton
-    fun provideDogBreedsRepository(api: DogApi): DogBreedsRepository = LiveDogBreedsRepository(api)
+    fun provideDogBreedsRepository(
+        localDataSource: DogsLocalDataSource,
+        remoteDataSource: DogsRemoteDataSource
+    ): DogBreedsRepository = LiveDogBreedsRepository(localDataSource, remoteDataSource)
+    //endregion
+
+    //region DB
+    @Provides
+    @Singleton
+    fun provideDogDatabase(@ApplicationContext context: Context): DogDatabase =
+        Room.databaseBuilder(context, DogDatabase::class.java, "dog-db").build()
+
+    @Provides
+    @Singleton
+    fun provideDogDao(db: DogDatabase) = db.dogDao()
+
+    @Provides
+    @Singleton
+    fun provideBreedDao(db: DogDatabase) = db.breedDao()
+    //endregion
+
+    //region Data Sources
+    @Provides
+    @Singleton
+    fun provideDogsLocalDataSource(dogDao: DogDao, breedDao: BreedDao): DogsLocalDataSource =
+        RoomDogsLocalDataSource(dogDao, breedDao)
+
+    @Provides
+    @Singleton
+    fun provideDogsRemoteDataSource(dogApi: DogApi): DogsRemoteDataSource =
+        ApiDogsRemoteDataSource(dogApi)
+    //endregion
+
+    //region misc
+    @Provides
+    @Singleton
+    fun provideAppDispatchers(): AppDispatchers = AppDispatchers(Dispatchers.IO)
     //endregion
 }

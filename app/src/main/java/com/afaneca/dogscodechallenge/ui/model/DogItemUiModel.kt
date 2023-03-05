@@ -14,7 +14,6 @@ data class DogItemUiModel(
     companion object {
         fun mapFromDomain(domainModel: DogItem) = DogItemUiModel(
             id = domainModel.id,
-            // TODO - make null safe
             breedName = domainModel.breeds.first().name,
             breedGroup = domainModel.breeds.first().breedGroup,
             origin = domainModel.breeds.first().origin,
