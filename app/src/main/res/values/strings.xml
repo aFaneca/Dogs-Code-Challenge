@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Dogs Code Challenge</string>
+    <string name="title_list">Explore</string>
+    <string name="title_search">Search</string>
+    <string name="list_toolbar_change_view">Toggle view</string>
+    <string name="search_empty_text">Input your search query above and let the magic happen!</string>
+    <string name="search_empty_text_no_results">No results found :( \nTry searching for something else!</string>
+    <string name="dog">Dog</string>
+    <string name="group">Group</string>
+    <string name="origin">Origin</string>
+    <string name="search_actionbar_title_with_query">Search: %s</string>
+    <string name="breed_details_group_label">Group</string>
+    <string name="breed_details_origin_label">Origin</string>
+    <string name="breed_details_temperament_label">Temperament</string>
+    <string name="unknown">Unknown</string>
+</resources>

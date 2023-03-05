@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.afaneca.dogscodechallenge.ui.list.ListFragment"
+        android:label="@string/title_list"
+        tools:layout="@layout/fragment_list">
+        <action
+            android:id="@+id/action_navigation_home_to_breedDetailsBottomSheetFragment"
+            app:destination="@id/breedDetailsBottomSheetFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.afaneca.dogscodechallenge.ui.search.SearchFragment"
+        android:label="@string/title_search"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_navigation_dashboard_to_breedDetailsBottomSheetFragment"
+            app:destination="@id/breedDetailsBottomSheetFragment" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/breedDetailsBottomSheetFragment"
+        android:name="com.afaneca.dogscodechallenge.ui.details.BreedDetailsBottomSheetFragment"
+        android:label="BreedDetailsBottomSheetFragment"
+        tools:layout="@layout/fragment_breed_details_bottom_sheet">
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <argument
+            android:name="group"
+            app:argType="string" />
+        <argument
+            android:name="origin"
+            app:argType="string" />
+        <argument
+            android:name="temperament"
+            app:argType="string" />
+    </dialog>
+
+</navigation>
