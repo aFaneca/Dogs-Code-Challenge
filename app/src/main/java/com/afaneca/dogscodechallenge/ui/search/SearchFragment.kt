@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -110,8 +111,8 @@ class SearchFragment : Fragment() {
         if (binding.rvList.adapter == null) {
             // setup
             binding.rvList.apply {
-                adapter = DogListAdapter(ListViewType.CollapsedWithInfo) {
-                    // TODO - click listener to details
+                adapter = DogListAdapter(ListViewType.CompactWithInfo) {
+                    showDetails(it)
                 }
                 layoutManager = LinearLayoutManager(context)
                 addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL))
@@ -127,5 +128,16 @@ class SearchFragment : Fragment() {
         }
         // refresh data
         (binding.rvList.adapter as DogListAdapter).submitList(list)
+    }
+
+    private fun showDetails(model: DogItemUiModel) {
+        val action =
+            SearchFragmentDirections.actionNavigationDashboardToBreedDetailsBottomSheetFragment(
+                name = model.breedName,
+                group = model.breedGroup ?: "",
+                origin = model.origin ?: "",
+                temperament = model.temperament ?: ""
+            )
+        findNavController().navigate(action)
     }
 }

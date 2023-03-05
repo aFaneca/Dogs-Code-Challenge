@@ -9,4 +9,8 @@
     <string name="group">Group</string>
     <string name="origin">Origin</string>
     <string name="search_actionbar_title_with_query">Search: %s</string>
+    <string name="breed_details_group_label">Group</string>
+    <string name="breed_details_origin_label">Origin</string>
+    <string name="breed_details_temperament_label">Temperament</string>
+    <string name="unknown">Unknown</string>
 </resources>

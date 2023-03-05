@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="BreedDetailsAttributeValue" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:padding">@dimen/margin_half</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:layout_marginTop">@dimen/margin_half</item>
+    </style>
+
+    <style name="BreedDetailsAttributeLabel" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:padding">@dimen/margin_half</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+</resources>

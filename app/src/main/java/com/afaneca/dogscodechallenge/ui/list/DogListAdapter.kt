@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.afaneca.dogscodechallenge.R
 import com.afaneca.dogscodechallenge.databinding.AdapterDogListItemBinding
 import com.afaneca.dogscodechallenge.databinding.AdapterDogSearchItemBinding
 import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
@@ -14,7 +15,7 @@ import com.afaneca.dogscodechallenge.ui.utils.ImageLoader
 
 sealed class ListViewType(val id: Int) {
     object ExpandedWithImage : ListViewType(1)
-    object CollapsedWithInfo : ListViewType(2)
+    object CompactWithInfo : ListViewType(2)
 }
 
 class DogListAdapter(
@@ -44,14 +45,14 @@ class DogListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DogListAdapter.ViewHolder {
         return when (viewType) {
-            ListViewType.CollapsedWithInfo.id -> {
+            ListViewType.CompactWithInfo.id -> {
                 val binding =
                     AdapterDogSearchItemBinding.inflate(
                         LayoutInflater.from(parent.context),
                         parent,
                         false
                     )
-                return CollapsedWithInfoViewHolder(binding)
+                return CompactWithInfoViewHolder(binding)
             }
             else -> {
                 val binding =
@@ -84,18 +85,19 @@ class DogListAdapter(
         }
     }
 
-    inner class CollapsedWithInfoViewHolder(private val binding: AdapterDogSearchItemBinding) :
+    inner class CompactWithInfoViewHolder(private val binding: AdapterDogSearchItemBinding) :
         ViewHolder(binding.root) {
         override fun bind(item: DogItemUiModel) {
+            val localizedUnknown = binding.root.context.getString(R.string.unknown)
             binding.root.setOnClickListener { onItemClick(item) }
-            binding.tvName.text = item.breedName
-            binding.tvGroup.text = item.breedGroup
-            binding.tvOrigin.text = item.origin
+            binding.tvName.text = item.breedName.ifBlank { localizedUnknown }
+            binding.tvGroup.text = item.breedGroup?.ifBlank { localizedUnknown } ?: localizedUnknown
+            binding.tvOrigin.text = item.origin?.ifBlank { localizedUnknown } ?: localizedUnknown
 
         }
     }
 
-    abstract inner class ViewHolder(private val rootView: View) :
+    abstract inner class ViewHolder(rootView: View) :
         RecyclerView.ViewHolder(rootView) {
         abstract fun bind(item: DogItemUiModel)
     }

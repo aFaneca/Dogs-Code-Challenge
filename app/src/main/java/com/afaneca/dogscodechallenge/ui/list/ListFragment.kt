@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.R
@@ -158,7 +159,7 @@ class ListFragment : Fragment() {
             // setup
             binding.rvList.apply {
                 adapter = DogListAdapter(ListViewType.ExpandedWithImage) {
-                    // TODO - click listener to details
+                    showDetails(it)
                 }
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -172,5 +173,15 @@ class ListFragment : Fragment() {
         }
         // refresh data
         (binding.rvList.adapter as DogListAdapter).submitList(list)
+    }
+
+    private fun showDetails(model: DogItemUiModel) {
+        val action = ListFragmentDirections.actionNavigationHomeToBreedDetailsBottomSheetFragment(
+            name = model.breedName,
+            group = model.breedGroup ?: "",
+            origin = model.origin ?: "",
+            temperament = model.temperament ?: ""
+        )
+        findNavController().navigate(action)
     }
 }
