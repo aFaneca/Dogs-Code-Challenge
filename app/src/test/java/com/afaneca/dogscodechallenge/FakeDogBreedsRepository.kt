@@ -48,6 +48,7 @@ class FakeDogBreedsRepository(
         query: String,
         page: Int
     ): Resource<BreedItemsPageWrapper> {
+        delay(50L) // Will be skipped automatically by StandardTestDispatcher()
         return if (!isNetworkAvailable)
             Resource.Error("network error")
         else Resource.Success(

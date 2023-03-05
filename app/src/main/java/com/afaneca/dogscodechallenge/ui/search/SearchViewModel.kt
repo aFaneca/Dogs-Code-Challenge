@@ -2,11 +2,11 @@ package com.afaneca.dogscodechallenge.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.afaneca.dogscodechallenge.common.AppDispatchers
 import com.afaneca.dogscodechallenge.common.Resource
 import com.afaneca.dogscodechallenge.domain.usecase.SearchDogBreedsUseCase
 import com.afaneca.dogscodechallenge.ui.model.DogItemUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -16,6 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
+    private val appDispatchers: AppDispatchers,
     private val searchDogBreedsUseCase: SearchDogBreedsUseCase
 ) : ViewModel() {
 
@@ -34,7 +35,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun getSearchResults(searchQuery: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(appDispatchers.IO) {
             searchDogBreedsUseCase(
                 query = searchQuery,
                 page = _state.value.page

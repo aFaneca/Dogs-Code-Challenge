@@ -53,7 +53,7 @@ class ListViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `when exploreDogImagesUseCase is invoked, first state change is loading to true`() =
-        runTest(StandardTestDispatcher()) {
+        runTest {
             val useCase = ExploreDogImagesUseCase(
                 FakeDogBreedsRepository(
                     cachedDogItems = listOf(
