@@ -12,7 +12,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afaneca.dogscodechallenge.R
@@ -116,7 +115,6 @@ class SearchFragment : Fragment() {
                     goToDetails(it)
                 }
                 layoutManager = LinearLayoutManager(context)
-                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL))
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         if (!recyclerView.canScrollVertically(1) && dy > 0) {
