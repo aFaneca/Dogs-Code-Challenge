@@ -75,18 +75,22 @@ class SearchFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().addMenuProvider(searchMenuProvider)
-        if (!viewModel.state.value.searchQuery.isNullOrEmpty()) {
-            (requireActivity() as MainActivity).supportActionBar?.title =
-                getString(
-                    R.string.search_actionbar_title_with_query,
-                    viewModel.state.value.searchQuery
-                )
-        }
+        updateActionBarTitleWithSearchQuery()
     }
 
     override fun onPause() {
         super.onPause()
         requireActivity().removeMenuProvider(searchMenuProvider)
+    }
+
+    private fun updateActionBarTitleWithSearchQuery() {
+        if (!viewModel.state.value.searchQuery.isNullOrEmpty()) {
+            (requireActivity() as? MainActivity)?.supportActionBar?.title =
+                getString(
+                    R.string.search_actionbar_title_with_query,
+                    viewModel.state.value.searchQuery
+                )
+        }
     }
 
     private fun observeState() {
@@ -97,13 +101,21 @@ class SearchFragment : Fragment() {
                 binding.pbPaginationLoading.isVisible = state.isLoadingFromPagination
 
                 // Empty Views
-                binding.emptyView.root.isVisible = !state.isLoading && state.listItems == null
+                binding.emptyView.root.isVisible =
+                    !state.isLoading && state.listItems == null && state.error.isNullOrBlank()
                 binding.emptyViewNoResults.root.isVisible =
                     !state.isLoading && state.listItems != null && state.listItems.isEmpty()
 
                 // Recycler View
                 binding.rvList.isVisible = !state.listItems.isNullOrEmpty() && !state.isLoading
                 state.listItems?.let { setupRecyclerView(it) }
+
+                // Error handling
+                if (!state.error.isNullOrBlank()) {
+                    handleError(state.error, !state.listItems.isNullOrEmpty())
+                } else {
+                    hideErrorContainers()
+                }
             }.launchIn(lifecycleScope)
     }
 
@@ -112,7 +124,7 @@ class SearchFragment : Fragment() {
             // setup
             binding.rvList.apply {
                 adapter = DogListAdapter(ListViewType.CompactWithInfo) {
-                    showDetails(it)
+                    goToDetails(it)
                 }
                 layoutManager = LinearLayoutManager(context)
                 addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL))
@@ -130,7 +142,24 @@ class SearchFragment : Fragment() {
         (binding.rvList.adapter as DogListAdapter).submitList(list)
     }
 
-    private fun showDetails(model: DogItemUiModel) {
+    private fun hideErrorContainers() {
+        (requireActivity() as? MainActivity)?.hideTopError()
+        binding.errorView.root.isVisible = false
+    }
+
+    /**
+     * If [isShowingList] = true, will show a top bar error, otherwise it'll show a full container one
+     */
+    private fun handleError(error: String, isShowingList: Boolean) {
+        if (isShowingList) {
+            (requireActivity() as? MainActivity)?.showTopError(error)
+        } else {
+            binding.errorView.tvError.text = error
+            binding.errorView.root.isVisible = true
+        }
+    }
+
+    private fun goToDetails(model: DogItemUiModel) {
         val action =
             SearchFragmentDirections.actionNavigationDashboardToBreedDetailsBottomSheetFragment(
                 name = model.breedName,

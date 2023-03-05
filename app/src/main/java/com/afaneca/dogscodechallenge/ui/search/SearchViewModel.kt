@@ -67,7 +67,7 @@ class SearchViewModel @Inject constructor(
                         } else {
                             // Pagination loading
                             _state.value =
-                                _state.value.copy(isLoadingFromPagination = true, error = null)
+                                _state.value.copy(isLoadingFromPagination = true)
                         }
                     }
                 }
