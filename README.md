@@ -6,6 +6,7 @@
   - [Building the project](#building-the-project)
   - [Arch](#arch)
   - [Relevant dependencies](#relevant-dependencies)
+  - [UI](#ui)
   - [Offline-first & pagination](#offline-first--pagination)
     - [Offline Support](#offline-support)
     - [Pagination](#pagination)
@@ -62,6 +63,11 @@ This app was developed based on **MVVM + Clean Architecture**, with an **offline
 - [Material Components](https://material.io/develop/android/) for UI
 - [Coroutines](https://developer.android.com/kotlin/coroutines) for background work
 
+## UI
+I've been tinkering with Jetpack Compose for the past year now and I believe it'll be the future of native android development.
+I'm even currently [developing another project with Jetpack Compose](https://github.com/aFaneca/AFA-Score-Android) and it looks stabler than it ever did.
+However, for this specific project, I chose to go with XML views (+ ViewBinding), since they are still very popular industry-wide.
+
 ## Offline-first & pagination
 For these requirements, **Paging 3** immediately came to mind as a possible solution.
 I could, in theory, delegate all the pagination and offline support functionality to that library and let it handle the implementation details behind the scenes.
@@ -104,6 +110,6 @@ Because of that, even though it is implemented, pagination will never in fact be
 
 # What Could Be Improved
 ## Contextualised error handling
-If we had control over the API, we would be able to work on normalizing the API responses with known error codes, so that we could map them into contextualized error prompts/messages that actually make sense to the end-user in the frontend.
+If we had control over the API, we would be able to work on normalizing the API responses with known error codes, so that we could map them into contextualized error prompts/messages that actually make sense to the end-user in the frontend. We should also map common client-side http exceptions into human readable error messages.
 
-Currently, I simply show the localized message that accompanies the exception thrown in case of network/server errors.
+Currently, I simply show the localized message that accompanies the exception thrown in case of network/server errors. That means that the API endpoint (and other technical details) can be exposed to the user interface, which should never happen on a production app.
