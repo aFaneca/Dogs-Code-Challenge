@@ -45,12 +45,14 @@ class ListFragment : Fragment() {
                         menu.findItem(R.id.action_toggle_view)
                             .setIcon(R.drawable.ic_dashboard_white_24dp)
                     }
+
                     is ListLayout.Grid -> {
                         menu.findItem(R.id.action_toggle_view)
                             .isVisible = true
                         menu.findItem(R.id.action_toggle_view)
                             .setIcon(R.drawable.ic_reorder)
                     }
+
                     else -> {
                         menu.findItem(R.id.action_toggle_view)
                             .isVisible = false
@@ -63,10 +65,12 @@ class ListFragment : Fragment() {
                         menu.findItem(R.id.action_toggle_order).isVisible = true
                         menu.findItem(R.id.action_toggle_order).setIcon(R.drawable.ic_move_up)
                     }
+
                     is ListOrder.Descending -> {
                         menu.findItem(R.id.action_toggle_order).isVisible = true
                         menu.findItem(R.id.action_toggle_order).setIcon(R.drawable.ic_move_down)
                     }
+
                     else -> {
                         menu.findItem(R.id.action_toggle_order).isVisible = false
                     }
@@ -80,10 +84,12 @@ class ListFragment : Fragment() {
                     toggleListLayout()
                     true
                 }
+
                 R.id.action_toggle_order -> {
                     toggleListOrder()
                     true
                 }
+
                 else -> false
             }
         }
@@ -203,12 +209,19 @@ class ListFragment : Fragment() {
     }
 
     private fun showDetails(model: DogItemUiModel) {
-        val action = ListFragmentDirections.actionNavigationHomeToBreedDetailsBottomSheetFragment(
-            name = model.breedName,
-            group = model.breedGroup ?: "",
-            origin = model.origin ?: "",
-            temperament = model.temperament ?: ""
-        )
-        findNavController().navigate(action)
+        /**
+         * Avoid [IllegalArgumentException] on quick double tap by only trying to perform the navigation
+         * if the current fragment is still the current destination
+         */
+        if (findNavController().currentDestination?.id == R.id.navigation_list) {
+            val action =
+                ListFragmentDirections.actionNavigationHomeToBreedDetailsBottomSheetFragment(
+                    name = model.breedName,
+                    group = model.breedGroup ?: "",
+                    origin = model.origin ?: "",
+                    temperament = model.temperament ?: ""
+                )
+            findNavController().navigate(action)
+        }
     }
 }

@@ -61,9 +61,7 @@ class SearchFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         observeState()
@@ -81,8 +79,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
                 // Loading
                 binding.pbLoading.root.isVisible = state.isLoading
                 binding.pbPaginationLoading.isVisible = state.isLoadingFromPagination
@@ -146,13 +143,19 @@ class SearchFragment : Fragment() {
     }
 
     private fun goToDetails(model: DogItemUiModel) {
-        val action =
-            SearchFragmentDirections.actionNavigationDashboardToBreedDetailsBottomSheetFragment(
-                name = model.breedName,
-                group = model.breedGroup ?: "",
-                origin = model.origin ?: "",
-                temperament = model.temperament ?: ""
-            )
-        findNavController().navigate(action)
+        /**
+         * Avoid [IllegalArgumentException] on quick double tap by only trying to perform the navigation
+         * if the current fragment is still the current destination
+         */
+        if (findNavController().currentDestination?.id == R.id.navigation_search) {
+            val action =
+                SearchFragmentDirections.actionNavigationDashboardToBreedDetailsBottomSheetFragment(
+                    name = model.breedName,
+                    group = model.breedGroup ?: "",
+                    origin = model.origin ?: "",
+                    temperament = model.temperament ?: ""
+                )
+            findNavController().navigate(action)
+        }
     }
 }
